@@ -8,6 +8,20 @@ class Users::RegistrationsController < Devise::RegistrationsController
     @user = User.new
   end
   
+  def create
+    @user = User.new(sign_up_params)
+     unless @user.valid?
+       render :new and return
+       # returnは下記の[ render :new_address ] を読み込んでしまう、[ DoubleRenderError ]を防ぐ為に記述
+     end
+    session["devise.regist_data"] = {user: @user.attributes}
+    # attributesメソッドはインスタンスメソッドから取得できる値をオブジェクト型からハッシュ型に変換できるメソッド
+    session["devise.regist_data"][:user]["password"] = params[:user][:password]
+    # attributesメソッドでデータ整形をした際にパスワードの情報は含まれない。そこで、パスワードを再度sessionに代入する必要がある
+    @address = @user.build_address
+    render :new_address
+  end
+
   # GET /resource/sign_up
   # def new
   #   super
