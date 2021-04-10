@@ -19,6 +19,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     session["devise.regist_data"][:user]["password"] = params[:user][:password]
     # attributesメソッドでデータ整形をした際にパスワードの情報は含まれない。そこで、パスワードを再度sessionに代入する必要がある
     @address = @user.build_address
+    # ユーザーモデルに紐づく住所情報を入力させるため、該当するインスタンスを生成しておく必要がある。そのために、build_addressで今回生成したインスタンス@userに紐づくAddressモデルのインスタンスを生成
     render :new_address
   end
 
