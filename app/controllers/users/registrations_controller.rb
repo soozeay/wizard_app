@@ -23,6 +23,26 @@ class Users::RegistrationsController < Devise::RegistrationsController
     render :new_address
   end
 
+  def create_address
+    @user = User.new(session["devise.regist_data"]["user"])
+    @address = Address.new(address_params)
+     unless @address.valid?
+       render :new_address and return
+     end
+    @user.build_address(@address.attributes) # バリデーションチェックが完了した情報とsessionで保持していた情報を合わせ、ユーザー情報として保存
+    @user.save
+     # build_addressを用いて送られてきたparamsを、保持していたsessionが含まれる@userに代入。そしてsaveメソッドを用いてテーブルに保存
+    session["devise.regist_data"]["user"].clear
+    sign_in(:user, @user)
+    # ユーザーの新規登録ができても、ログインができているわけではない。それをsign_inメソッドを利用してログイン作業を行う 
+  end
+
+  private
+
+ def address_params
+   params.require(:address).permit(:postal_code, :address)
+ end
+
   # GET /resource/sign_up
   # def new
   #   super
